@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('tools', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('code')->unique();
+            //$table->string('name');
+            $table->string('code',3)->unique();
 
             $table->foreignId('tool_type_id')->constrained('tool_types','id')->onDelete('restrict');
             $table->foreignId('location_id')->constrained('locations','id')->onDelete('cascade');

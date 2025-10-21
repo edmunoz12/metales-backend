@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('tool_types', function (Blueprint $table) {
             $table->id();
-            $table->string('name',3)->unique();
+            $table->string('name')->unique();
             $table->string('description')->nullable();
             $table->timestamps();
             $table->softDeletes();

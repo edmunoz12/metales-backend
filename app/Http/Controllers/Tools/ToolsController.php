@@ -258,5 +258,10 @@ class ToolsController extends Controller
         return Supplier::select('id', 'name')->get();
     }
 
+    public function count() {
+        $count = Tool::count();
+        return response()->json(['count' => $count]);
+    }
+
 }
 

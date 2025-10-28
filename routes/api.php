@@ -36,6 +36,10 @@ Route::middleware('api')->group(function(){
     Route::get('/suppliers', [ToolsController::class, 'suppliers'])->name('suppliers');
 
     Route::prefix('tools')->group(function () {
+
+        //contador
+        Route::get('/count', [ToolsController::class, 'count'])->name('tool-count');
+
         Route::get('/', [ToolsController::class, 'index']);     // Listar
         Route::get('/{id}', [ToolsController::class, 'show']);  // Mostrar una
         Route::post('/', [ToolsController::class, 'store']);    // Crear
@@ -45,7 +49,6 @@ Route::middleware('api')->group(function(){
 
     //Catalagos
     Route::get('/reports',[ReportsController::class,'index'])->name('tools-wear-report');
-
 
     //Route::apiResource('Unidad',UnidadController::class);
    //

@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Principal\PrincipalController;
 use App\Http\Controllers\Tools\ToolsController;
+use App\Http\Controllers\Reports\ReportsController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -43,7 +44,7 @@ Route::middleware('api')->group(function(){
     });
 
     //Catalagos
-
+    Route::get('/reports',[ReportsController::class,'index'])->name('tools-wear-report');
 
 
     //Route::apiResource('Unidad',UnidadController::class);

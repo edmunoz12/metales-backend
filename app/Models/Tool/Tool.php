@@ -28,6 +28,7 @@ class Tool extends Model
         'measurement',
         'angle',
         'clarity',
+        'report_type_id',
     ];
 
     public const PAGINATE = 50;

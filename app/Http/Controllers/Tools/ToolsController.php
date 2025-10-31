@@ -25,7 +25,7 @@ class ToolsController extends Controller
 
             // Columnas permitidas para ordenamiento
             $allowedSortColumns = [
-                'id', 'code', 'shape', 'station_size', 'measurement', 'angle', 'clarity'
+                'id', 'code', 'shape', 'station_size', 'measurement', 'angle', 'clarity','lifecycle_statuses'
             ];
 
             if (!in_array($sortColumn, $allowedSortColumns)) {
@@ -44,7 +44,6 @@ class ToolsController extends Controller
                 'tool_type_id',
                 'location_id',
                 'supplier_id',
-                'lifecycle_statuses',
                 'acquired_at',
                 'description'
             );
@@ -57,7 +56,8 @@ class ToolsController extends Controller
                         ->orWhere('station_size', 'like', "%$search%")
                         ->orWhere('measurement', 'like', "%$search%")
                         ->orWhere('angle', 'like', "%$search%")
-                        ->orWhere('clarity', 'like', "%$search%");
+                        ->orWhere('clarity', 'like', "%$search%")
+                        ->orWhere('lifecycle_statuses', 'like', "%$search%");
                 });
             }
 

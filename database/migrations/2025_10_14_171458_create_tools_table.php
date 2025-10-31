@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreignId('tool_type_id')->constrained('tool_types','id')->onDelete('restrict');
             $table->foreignId('location_id')->constrained('locations','id')->onDelete('cascade');
             $table->foreignId('supplier_id')->constrained('suppliers','id')->onDelete('restrict');
+            $table->foreignId('report_type_id')->constrained('report_types','id')->onDelete('cascade');
 
             $table->integer('lifecycle_statuses')->nullable();
             $table->date('acquired_at')->nullable();

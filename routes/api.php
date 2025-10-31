@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Principal\PrincipalController;
 use App\Http\Controllers\Tools\ToolsController;
 use App\Http\Controllers\Reports\ReportsController;
+use App\Http\Controllers\Insertion\InsertionController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -36,7 +37,6 @@ Route::middleware('api')->group(function(){
     Route::get('/suppliers', [ToolsController::class, 'suppliers'])->name('suppliers');
 
     Route::prefix('tools')->group(function () {
-
         //contador
         Route::get('/count', [ToolsController::class, 'count'])->name('tool-count');
 
@@ -49,6 +49,7 @@ Route::middleware('api')->group(function(){
 
     //Catalagos
     Route::get('/reports',[ReportsController::class,'index'])->name('tools-wear-report');
+    Route::get('/insertion',[InsertionController::class,'index'])->name('insertion');
 
     //Route::apiResource('Unidad',UnidadController::class);
    //

@@ -14,27 +14,23 @@ class ReportsController extends Controller
         try {
             // Parámetros recibidos del frontend (Angular)
             $search = $request->input('search', '');
-            $page = (int) $request->input('page', 1);
-            $pageSize = (int) $request->input('pageSize', 20);
+            $page = $request->input('page', 1);
+            $pageSize = $request->input('pageSize', 20);
             $sortColumn = $request->input('sortColumn', 't.code');
-            $sortDirection = strtolower($request->input('sortDirection', 'asc'));
+            $sortDirection = strtolower($request->input('sortDirection', 'desc'));
 
             // Columnas permitidas para ordenar
             $allowedSortColumns = [
-                't.id',
                 't.code',
-                't.lifecycle_statuses',
-                'tt.name',
-                'l.name',
-                'l.code'
+                'tool_type_name',
+                'location_name',
+                'location_code',
+                't.lifecycle_statuses'
+
             ];
 
             if (!in_array($sortColumn, $allowedSortColumns)) {
-                $sortColumn = 't.code';
-            }
-
-            if (!in_array($sortDirection, ['asc', 'desc'])) {
-                $sortDirection = 'asc';
+                $sortColumn = 'code';
             }
 
             // Construcción de la consulta principal
@@ -48,18 +44,11 @@ class ReportsController extends Controller
                     'l.id as location_id',
                     'l.name as location_name',
                     'l.code as location_code',
-                    'l.description as location_description',
-                    DB::raw('COUNT(p.id) as process_count') // ejemplo: cuántos procesos usan esa herramienta
+                    'l.description as location_description'
                 )
                 ->leftJoin('locations as l', 't.location_id', '=', 'l.id')
                 ->leftJoin('tool_types as tt', 't.tool_type_id', '=', 'tt.id')
-                ->leftJoin('processes as p', 't.id', '=', 'p.tool_id')
-                ->groupBy(
-                    't.id', 't.code', 't.lifecycle_statuses',
-                    'tt.id', 'tt.name',
-                    'l.id', 'l.name', 'l.code', 'l.description'
-                )
-                ->orderBy('t.lifecycle_statuses', 'asc');
+                ->leftJoin('processes as p', 't.id', '=', 'p.tool_id');
 
             // Búsqueda (filtro general)
             if (!empty($search)) {
@@ -68,7 +57,8 @@ class ReportsController extends Controller
                         ->orWhere('tt.name', 'like', "%{$search}%")
                         ->orWhere('l.name', 'like', "%{$search}%")
                         ->orWhere('l.code', 'like', "%{$search}%")
-                        ->orWhere('l.description', 'like', "%{$search}%");
+                        ->orWhere('l.description', 'like', "%{$search}%")
+                        ->orWhere('lifecycle_statuses', 'like', "%$search%");
                 });
             }
 
@@ -88,10 +78,7 @@ class ReportsController extends Controller
         }
     }
 
-    public function store(Request $request)
-    {
-
-    }
+    public function store(Request $request) { }
 
     public function show($id) { /* mostrar un report específico */ }
 

@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Principal\PrincipalController;
 use App\Http\Controllers\Tools\ToolsController;
 use App\Http\Controllers\Reports\ReportsController;
@@ -18,41 +18,39 @@ use App\Http\Controllers\Insertion\InsertionController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+/*Punto de entrada necesario para Sanctum + Angular. Angular lo llama antes del login.*/
+Route::get('/csrf-cookie', function () {
+    return response()->json(['message' => 'CSRF cookie set']);
 });
 
+// Rutas públicas (sin autenticación)
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 
-Route::middleware('api')->group(function(){
+// Rutas protegidas (requieren sesión activa con Sanctum)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/user', [AuthController::class, 'user']);
 
-    Route::get('/menu',[PrincipalController::class,'index'])->name('menu');
-    Route::get('/submenu',[PrincipalController::class,'submenu'])->name('submenu');
-    //Route::get('/inicio',[PrincipalController::class,'sidebar'])->name('inicio');
+    // Rutas de la aplicación
+    Route::get('/menu', [PrincipalController::class, 'index'])->name('menu');
+    Route::get('/submenu', [PrincipalController::class, 'submenu'])->name('submenu');
 
+    Route::prefix('tools')->group(function () {
+        Route::get('/count', [ToolsController::class, 'count'])->name('tool-count');
+        Route::get('/', [ToolsController::class, 'index']);
+        Route::get('/{id}', [ToolsController::class, 'show']);
+        Route::post('/', [ToolsController::class, 'store']);
+        Route::put('/{id}', [ToolsController::class, 'update']);
+        Route::delete('/{id}', [ToolsController::class, 'destroy']);
+    });
 
-    //Route::get('/index', [ToolsController::class, 'index'])->name('tool');
-    //Route::post('newTool', [ToolsController::class, 'newTool'])->name('new-Tool');
-    Route::get('/tooTypes', [ToolsController::class, 'toolTypes'])->name('toolTypes');
+    Route::get('/toolTypes', [ToolsController::class, 'toolTypes'])->name('toolTypes');
     Route::get('/locations', [ToolsController::class, 'locations'])->name('locations');
     Route::get('/suppliers', [ToolsController::class, 'suppliers'])->name('suppliers');
 
-    Route::prefix('tools')->group(function () {
-        //contador
-        Route::get('/count', [ToolsController::class, 'count'])->name('tool-count');
-
-        Route::get('/', [ToolsController::class, 'index']);     // Listar
-        Route::get('/{id}', [ToolsController::class, 'show']);  // Mostrar una
-        Route::post('/', [ToolsController::class, 'store']);    // Crear
-        Route::put('/{id}', [ToolsController::class, 'update']); // Actualizar
-        Route::delete('/{id}', [ToolsController::class, 'destroy']); // Eliminar
-    });
-
-    //Catalagos
-    Route::get('/reports',[ReportsController::class,'index'])->name('tools-wear-report');
-    Route::get('/insertion',[InsertionController::class,'index'])->name('insertion');
-
-    //Route::apiResource('Unidad',UnidadController::class);
-   //
-
-
+    Route::get('/reports', [ReportsController::class, 'index'])->name('tools-wear-report');
+    Route::get('/insertion', [InsertionController::class, 'index'])->name('insertion');
 });
+
+

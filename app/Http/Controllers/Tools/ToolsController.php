@@ -10,6 +10,7 @@ use App\Models\ToolType\ToolType;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Log;
 
 class ToolsController extends Controller
 {

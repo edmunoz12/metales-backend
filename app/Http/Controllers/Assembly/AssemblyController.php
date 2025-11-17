@@ -19,7 +19,7 @@ class AssemblyController extends Controller
 
             // Construimos la query base
             $assemblies = Assembly::query()
-                ->orderBy('priority_type', 'desc');
+                ->orderBy('priority_type', 'ASC');
 
             if(!empty($search)){
                 $assemblies->where(function($q) use ($search){

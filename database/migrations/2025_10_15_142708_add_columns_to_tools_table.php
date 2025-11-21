@@ -17,6 +17,9 @@ return new class extends Migration
             $table->string('measurement')->nullable();
             $table->float('angle')->nullable();
             $table->string('clarity')->nullable();
+
+            $table->string('model')->nullable();
+            $table->string('style')->nullable();
         });
     }
 
@@ -32,6 +35,8 @@ return new class extends Migration
                 'measurement',
                 'angle',
                 'clarity',
+                'model',
+                'style',
             ]);
         });
     }

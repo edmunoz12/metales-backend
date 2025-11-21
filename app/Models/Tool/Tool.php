@@ -6,6 +6,7 @@ use App\Models\Location\Location;
 use App\Models\Process\Process;
 use App\Models\Supplier\Supplier;
 use App\Models\ToolType\ToolType;
+use App\Models\ReportTypes\ReportTypes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -28,6 +29,8 @@ class Tool extends Model
         'measurement',
         'angle',
         'clarity',
+        'model',
+        'style',
         'report_type_id',
     ];
 
@@ -60,6 +63,11 @@ class Tool extends Model
     {
         return $this->belongsToMany(Process::class, 'process_tool')
             ->withTimestamps();
+    }
+
+    public function reportType()
+    {
+        return $this->belongsTo(ReportTypes::class, 'report_type_id');
     }
 
 }

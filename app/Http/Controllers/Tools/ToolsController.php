@@ -46,8 +46,9 @@ class ToolsController extends Controller
                 'location_id',
                 'supplier_id',
                 'acquired_at',
-                'description'
-            );
+                'description',
+                'report_type_id'
+            )->where('report_type_id', 1);
 
             // Búsqueda
             if (!empty($search)) {
@@ -122,7 +123,7 @@ class ToolsController extends Controller
                 'shape' => 'required|string|max:255',
                 'station_size' => 'required|string|max:255',
                 'measurement' => 'required|string|max:255',
-                'angle' => 'required|integer|max:255',
+                'angle' => 'required|integer',
                 'clarity' => 'required|string|max:255',
                 'tool_type_id' => 'required|integer|exists:tool_types,id',
                 'location_id' => 'required|integer|exists:locations,id',
@@ -130,6 +131,7 @@ class ToolsController extends Controller
                 'lifecycle_statuses' => 'required|integer|max:255',
                 'acquired_at' => 'required|date',
                 'description' => 'nullable|string|max:500',
+                'report_type_id' => 'sometimes|required',
             ]);
 
             $tool = Tool::create($validated);
@@ -187,6 +189,7 @@ class ToolsController extends Controller
                 'lifecycle_statuses' => 'sometimes|required|integer|max:255',
                 'acquired_at' => 'sometimes|required|date',
                 'description' => 'nullable|string|max:500',
+                'report_type_id' => 'sometimes|required',
             ]);
 
             $tool->update($validated);

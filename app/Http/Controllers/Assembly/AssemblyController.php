@@ -75,7 +75,7 @@ class AssemblyController extends Controller
         try {
             $validated = $request->validate([
                 'part_number' => 'required|string|max:20',
-                'quantity' => 'required|integer|max:255',
+                'quantity' => 'required|integer',
                 'priority_type' => 'required|integer',
                 'assembly_date' => 'required|date',
             ]);

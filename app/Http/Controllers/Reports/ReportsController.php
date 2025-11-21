@@ -30,7 +30,7 @@ class ReportsController extends Controller
             ];
 
             if (!in_array($sortColumn, $allowedSortColumns)) {
-                $sortColumn = 'code';
+                $sortColumn = 't.lifecycle_statuses';
             }
 
             // Construcción de la consulta principal
@@ -39,6 +39,7 @@ class ReportsController extends Controller
                     't.id',
                     't.code',
                     't.lifecycle_statuses',
+                    't.report_type_id',
                     'tt.id as tool_type_id',
                     'tt.name as tool_type_name',
                     'l.id as location_id',
@@ -48,7 +49,7 @@ class ReportsController extends Controller
                 )
                 ->leftJoin('locations as l', 't.location_id', '=', 'l.id')
                 ->leftJoin('tool_types as tt', 't.tool_type_id', '=', 'tt.id')
-                ->leftJoin('processes as p', 't.id', '=', 'p.tool_id');
+                ->leftJoin('processes as p', 't.id', '=', 'p.tool_id')->where('report_type_id', 1);
 
             // Búsqueda (filtro general)
             if (!empty($search)) {

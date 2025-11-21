@@ -7,6 +7,7 @@ use App\Http\Controllers\Principal\PrincipalController;
 use App\Http\Controllers\Tools\ToolsController;
 use App\Http\Controllers\Reports\ReportsController;
 use App\Http\Controllers\Insertion\InsertionController;
+use App\Http\Controllers\Assembly\AssemblyController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -50,7 +51,23 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/suppliers', [ToolsController::class, 'suppliers'])->name('suppliers');
 
     Route::get('/reports', [ReportsController::class, 'index'])->name('tools-wear-report');
-    Route::get('/insertion', [InsertionController::class, 'index'])->name('insertion');
+
+    Route::prefix('insertion')->group(function () {
+        Route::get('/', [InsertionController::class, 'index']);
+        Route::get('/{id}', [InsertionController::class, 'show']);
+        Route::post('/', [InsertionController::class, 'create']);
+        Route::put('/{id}', [InsertionController::class, 'update']);
+        Route::delete('/{id}', [InsertionController::class, 'destroy']);
+    });
+
+    Route::prefix('assemblies')->group(function () {
+        Route::get('/', [AssemblyController::class, 'index']);
+        Route::get('/{id}', [AssemblyController::class, 'show']);
+        Route::post('/', [AssemblyController::class, 'create']);
+        Route::put('/{id}', [AssemblyController::class, 'update']);
+        Route::delete('/{id}', [AssemblyController::class, 'destroy']);
+    });
+
 });
 
 

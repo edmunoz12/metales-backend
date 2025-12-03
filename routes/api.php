@@ -61,7 +61,9 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::prefix('assemblies')->group(function () {
-        Route::get('/', [AssemblyController::class, 'index']);
+        Route::get('/reports', [AssemblyController::class, 'reports']); // REPORTS
+
+        Route::get('/', [AssemblyController::class, 'index']); // PRODUCCIÓN
         Route::get('/{id}', [AssemblyController::class, 'show']);
         Route::post('/', [AssemblyController::class, 'create']);
         Route::put('/{id}', [AssemblyController::class, 'update']);

@@ -44,6 +44,41 @@ class AssemblyController extends Controller
             ], 500);
         }
     }
+
+    public function reports(Request $request)
+    {
+        try {
+            $search = $request->input('search', '');
+            $page = $request->input('page', 1);
+            $pageSize = $request->input('pageSize', 20);
+
+            // Construimos la query base
+            $assemblies = Assembly::query()
+                ->orderBy('assembly_date', 'DESC');
+
+            if(!empty($search)){
+                $assemblies->where(function($q) use ($search){
+                    $q->where('part_number', 'like', "%$search%");
+                });
+            }
+
+            $results = $assemblies->paginate($pageSize, ['*'], 'page', $page);
+
+            return response()->json([
+                'data' => $results->items(),
+                'total' => $results->total(),
+                'current_page' => $results->currentPage(),
+                'last_page' => $results->lastPage(),
+                'per_page' => $results->perPage(),
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'index, Error al realizar la consulta',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
     public function show($id)
     {
         try {

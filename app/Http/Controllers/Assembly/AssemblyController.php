@@ -4,12 +4,24 @@ namespace App\Http\Controllers\Assembly;
 
 use App\Http\Controllers\Controller;
 use App\Models\Assembly\Assembly;
+use App\Models\AssemblyCustomer\AssemblyCustomer;
+use App\Models\User\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class AssemblyController extends Controller
 {
+    public function operators()
+    {
+        return User::select('id', 'name')->get();
+    }
+
+    public function customers()
+    {
+        return AssemblyCustomer::select('id','customer_name','logo_path')->get();
+    }
+
     public function index(Request $request)
     {
         try {
@@ -18,8 +30,8 @@ class AssemblyController extends Controller
             $pageSize = $request->input('pageSize', 20);
 
             // Construimos la query base
-            $assemblies = Assembly::query()
-                ->orderBy('priority_type', 'ASC');
+            $assemblies = Assembly::with('customer')
+            ->orderBy('priority_type', 'ASC');
 
             if(!empty($search)){
                 $assemblies->where(function($q) use ($search){
@@ -29,8 +41,23 @@ class AssemblyController extends Controller
 
             $results = $assemblies->paginate($pageSize, ['*'], 'page', $page);
 
+            $data = $results->getCollection()->transform(function ($assembly) {
+                return [
+                    'id' => $assembly->id,
+                    'part_number' => $assembly->part_number,
+                    'quantity' => $assembly->quantity,
+                    'priority_type' => $assembly->priority_type,
+                    'assembly_date' => $assembly->assembly_date,
+                    'assembly_customer_id' => $assembly->assembly_customer_id,
+                    'user_id' => $assembly->user_id,
+                    'customer_name' => $assembly->customer ? $assembly->customer->customer_name : null,
+                    'logo_url' => $assembly->customer ? asset($assembly->customer->logo_path) : null,
+
+                ];
+            });
+
             return response()->json([
-                'data' => $results->items(),
+                'data' => $data, // $results->items(),
                 'total' => $results->total(),
                 'current_page' => $results->currentPage(),
                 'last_page' => $results->lastPage(),
@@ -113,6 +140,8 @@ class AssemblyController extends Controller
                 'quantity' => 'required|integer',
                 'priority_type' => 'required|integer',
                 'assembly_date' => 'required|date',
+                'assembly_customer_id' => 'required|integer',
+                'user_id' => 'required|integer',
             ]);
 
             $assembly = Assembly::create($validated);
@@ -150,6 +179,8 @@ class AssemblyController extends Controller
                 'quantity' => 'required|integer',
                 'priority_type' => 'required|integer',
                 'assembly_date' => 'nullable|date',
+                'assembly_customer_id' => 'required|integer',
+                'user_id' => 'required|integer',
             ]);
 
             $assembly->update($validated);

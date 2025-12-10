@@ -12,10 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('assemblies', function (Blueprint $table) {
-            $table->foreignId('assembly_customer_id')
-                ->nullable()
-                ->constrained('assembly_customers')
-                ->nullOnDelete();
+            $table->foreignId('assembly_customer_id')->nullable()->constrained('assembly_customers','id')->nullOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained('users', 'id')->nullOnDelete();
+
         });
     }
 
@@ -27,6 +26,10 @@ return new class extends Migration
         Schema::table('assemblies', function (Blueprint $table) {
             $table->dropForeign(['assembly_customer_id']);
             $table->dropColumn('assembly_customer_id');
+
+            $table->dropForeign(['user_id']);
+            $table->dropColumn('user_id');
+            
         });
     }
 };

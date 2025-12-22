@@ -12,6 +12,12 @@ class AssemblyCustomer extends Model
     use HasFactory, SoftDeletes;
     protected $table = 'assembly_customers';
 
+    protected $fillable = [
+        'customer_name',
+        'certifications',
+        'logo_path'
+    ];
+
     protected $casts = [
         'deleted_at' => 'datetime',
     ];

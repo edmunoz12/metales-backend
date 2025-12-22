@@ -29,7 +29,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 
 // Rutas protegidas (requieren sesión activa con Sanctum)
-Route::middleware('auth:sanctum')->group(function () {
+//Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
 
@@ -72,6 +72,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/{id}', [AssemblyController::class, 'destroy']);
     });
 
-});
+//});
 
 

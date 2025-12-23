@@ -16,6 +16,24 @@ class UserSeeder extends Seeder
     {
         $users = [
             [
+                'name' => 'Edgar Muñoz',
+                'email' => 'edmunoz@parpro.com',
+                'user_type_id' => 1,
+                'password' => Hash::make('admin'),
+            ],
+            [
+                'name' => 'Blanca Reyes',
+                'email' => 'breyes@parpro.com',
+                'user_type_id' => 2,
+                'password' => Hash::make('adminMetales'),
+            ],
+            [
+                'name' => 'Daniel Alvarez',
+                'email' => 'dalvarez@parpro.com',
+                'user_type_id' => 3,
+                'password' => Hash::make('adminPElectrica'),
+            ],
+            [
                 'name' => 'Cedeño Zepeda Alberto',
                 'email' => 'czalberto',
                 'user_type_id' => 5,
@@ -72,7 +90,10 @@ class UserSeeder extends Seeder
         ];
 
         foreach ($users as $user) {
-            User::create($user);
+            User::updateOrCreate(
+                ['email' => $user['email']], // clave única
+                $user
+            );
         }
     }
 }

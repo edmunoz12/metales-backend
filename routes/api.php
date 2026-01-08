@@ -70,6 +70,7 @@ Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
         Route::post('/', [AssemblyController::class, 'create']);
         Route::put('/{id}', [AssemblyController::class, 'update']);
         Route::delete('/{id}', [AssemblyController::class, 'destroy']);
+        Route::patch('/{id}/complete', [AssemblyController::class, 'complete']);
     });
 
 //});

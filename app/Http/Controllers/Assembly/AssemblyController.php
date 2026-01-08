@@ -14,7 +14,9 @@ class AssemblyController extends Controller
 {
     public function operators()
     {
-        return User::select('id', 'name')->get();
+        return User::select('id', 'name')
+            ->where('user_type_id', 5)
+            ->get();
     }
 
     public function customers()
@@ -27,7 +29,7 @@ class AssemblyController extends Controller
         try {
             $search = $request->input('search', '');
             $page = $request->input('page', 1);
-            $pageSize = $request->input('pageSize', 20);
+            $pageSize = $request->input('pageSize', 10);
 
             // Construimos la query base
             $assemblies = Assembly::with('customer')
@@ -52,6 +54,7 @@ class AssemblyController extends Controller
                     'user_id' => $assembly->user_id,
                     'customer_name' => $assembly->customer ? $assembly->customer->customer_name : null,
                     'logo_url' => $assembly->customer ? asset($assembly->customer->logo_path) : null,
+                    'job' => $assembly->job,
 
                 ];
             });
@@ -142,6 +145,7 @@ class AssemblyController extends Controller
                 'assembly_date' => 'required|date',
                 'assembly_customer_id' => 'required|integer',
                 'user_id' => 'required|integer',
+                'job' => 'nullable|string',
             ]);
 
             $assembly = Assembly::create($validated);
@@ -181,6 +185,7 @@ class AssemblyController extends Controller
                 'assembly_date' => 'nullable|date',
                 'assembly_customer_id' => 'required|integer',
                 'user_id' => 'required|integer',
+                'job' => 'nullable|string',
             ]);
 
             $assembly->update($validated);
@@ -217,5 +222,35 @@ class AssemblyController extends Controller
             ], 500);
         }
     }
+
+    public function complete($id)
+    {
+        try {
+            $assembly = Assembly::findOrFail($id);
+
+            $assembly->update([
+                'status' => 1
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Ensamble marcado como completado.',
+                'data' => $assembly
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error('Error al completar ensamble', [
+                'id' => $id,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No se pudo completar el ensamble.'
+            ], 500);
+        }
+    }
+
+
 }
 

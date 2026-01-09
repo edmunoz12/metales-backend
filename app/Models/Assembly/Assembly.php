@@ -19,7 +19,8 @@ class Assembly extends Model
       'assembly_date',
       'assembly_customer_id',
       'user_id',
-      'job'
+      'job',
+      'status'
     ];
     public const PAGINATE = 20;
     protected $casts = [

@@ -20,9 +20,11 @@ use App\Http\Controllers\Assembly\AssemblyController;
 */
 
 /*Punto de entrada necesario para Sanctum + Angular. Angular lo llama antes del login.*/
-Route::get('/csrf-cookie', function () {
+
+/*Route::get('/csrf-cookie', function () {
     return response()->json(['message' => 'CSRF cookie set']);
 });
+*/
 
 // Rutas públicas (sin autenticación)
 Route::post('/login', [AuthController::class, 'login']);

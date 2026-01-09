@@ -228,9 +228,15 @@ class AssemblyController extends Controller
         try {
             $assembly = Assembly::findOrFail($id);
 
-            $assembly->update([
-                'status' => 1
-            ]);
+            if ($assembly->status === 1) {
+                return response()->json([
+                    'status' => 'info',
+                    'message' => 'El ensamble ya estaba completado'
+                ], 200);
+            }
+
+            $assembly->status = 1;
+            $assembly->save();
 
             return response()->json([
                 'status' => 'success',

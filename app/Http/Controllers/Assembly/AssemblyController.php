@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Assembly;
 
+use App\Events\AssemblyCreated;
+use App\Events\AssemblyUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Assembly\Assembly;
 use App\Models\AssemblyCustomer\AssemblyCustomer;
@@ -33,6 +35,7 @@ class AssemblyController extends Controller
 
             // Construimos la query base
             $assemblies = Assembly::with('customer')
+            ->whereNull('status')
             ->orderBy('priority_type', 'ASC');
 
             if(!empty($search)){
@@ -80,10 +83,11 @@ class AssemblyController extends Controller
         try {
             $search = $request->input('search', '');
             $page = $request->input('page', 1);
-            $pageSize = $request->input('pageSize', 20);
+            $pageSize = $request->input('pageSize', 10);
 
             // Construimos la query base
             $assemblies = Assembly::query()
+                ->where('status', 1)
                 ->orderBy('assembly_date', 'DESC');
 
             if(!empty($search)){
@@ -149,6 +153,8 @@ class AssemblyController extends Controller
             ]);
 
             $assembly = Assembly::create($validated);
+            // se dispara evento que muestra los cambios en la tabla en las otras sesiones
+            broadcast(new AssemblyCreated($assembly))->toOthers();
 
             return response()->json([
                 'status' => 'success',
@@ -164,10 +170,10 @@ class AssemblyController extends Controller
             ], 422);
 
         } catch (\Exception $e) {
-            Log::error('Error al crear herramienta', ['error' => $e->getMessage()]);
+            Log::error('Error al crear el registro', ['error' => $e->getMessage()]);
             return response()->json([
                 'status' => 'error',
-                'message' => 'No se pudo crear la herramienta.',
+                'message' => 'No se generar el registro.',
                 'error' => $e->getMessage(),
             ], 500);
         }
@@ -189,6 +195,7 @@ class AssemblyController extends Controller
             ]);
 
             $assembly->update($validated);
+            broadcast(new AssemblyUpdated($assembly))->toOthers();
 
             return response()->json([
                 'status' => 'success',
@@ -209,6 +216,7 @@ class AssemblyController extends Controller
     {
         try {
             $assembly = Assembly::findOrFail($id);
+            $assembly->status = 2;
             $assembly->delete();
 
             return response()->json(['message' => 'Ensamble eliminado correctamente.'], 200);

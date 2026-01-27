@@ -39,6 +39,7 @@ Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
     Route::get('/menu', [PrincipalController::class, 'index'])->name('menu');
     Route::get('/submenu', [PrincipalController::class, 'submenu'])->name('submenu');
 
+    Route::get('/tool-codes/preview', [ToolCodeController::class, 'preview']);
     Route::prefix('tools')->group(function () {
         Route::get('/count', [ToolsController::class, 'count'])->name('tool-count');
         Route::get('/', [ToolsController::class, 'index']);

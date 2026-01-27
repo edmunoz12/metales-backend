@@ -26,15 +26,15 @@ class AssemblyCreated implements ShouldBroadcast
     /**
      * Get the channels the event should broadcast on.
      *
-     * @return array<int, \Illuminate\Broadcasting\Channel>
+     * @return \Illuminate\Broadcasting\Channel[]
      */
     public function broadcastOn(): array
     {
-        /*
-        return [
-            new PrivateChannel('channel-name'),
-        ];
-        */
-        return new Channel('assemblies');
+        return [new Channel('assemblies')];
+    }
+
+    public function broadcastAs(): string
+    {
+        return 'AssemblyCreated';
     }
 }

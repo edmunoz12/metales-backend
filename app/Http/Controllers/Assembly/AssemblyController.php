@@ -154,7 +154,7 @@ class AssemblyController extends Controller
 
             $assembly = Assembly::create($validated);
             // se dispara evento que muestra los cambios en la tabla en las otras sesiones
-            broadcast(new AssemblyCreated($assembly))->toOthers();
+            event(new AssemblyCreated($assembly->toArray()));
 
             return response()->json([
                 'status' => 'success',
@@ -195,7 +195,7 @@ class AssemblyController extends Controller
             ]);
 
             $assembly->update($validated);
-            broadcast(new AssemblyUpdated($assembly))->toOthers();
+            event(new AssemblyUpdated($assembly->toArray()));
 
             return response()->json([
                 'status' => 'success',

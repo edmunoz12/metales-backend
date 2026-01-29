@@ -154,11 +154,15 @@ class AssemblyController extends Controller
 
             $assembly = Assembly::create($validated);
             // se dispara evento que muestra los cambios en la tabla en las otras sesiones
-            event(new AssemblyCreated($assembly->toArray()));
+            //  IMPORTANTE: evitar enviar datos acoplados al response
+            event(new AssemblyCreated([
+                'action' => 'created',
+                'assembly' => $assembly->fresh()->toArray(),
+            ]));
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Herramienta creada correctamente.',
+                'message' => 'Ensamble creado correctamente.',
                 'data' => $assembly
             ], 201);
 
@@ -195,7 +199,10 @@ class AssemblyController extends Controller
             ]);
 
             $assembly->update($validated);
-            event(new AssemblyUpdated($assembly->toArray()));
+            event(new AssemblyUpdated([
+                'action' => 'updated',
+                'assembly' => $assembly->fresh()->toArray(),
+            ]));
 
             return response()->json([
                 'status' => 'success',
@@ -217,6 +224,13 @@ class AssemblyController extends Controller
         try {
             $assembly = Assembly::findOrFail($id);
             $assembly->status = 2;
+            $assembly->save();
+
+            event(new AssemblyUpdated([
+                'action' => 'deleted',
+                'assembly' => $assembly->toArray(),
+            ]));
+
             $assembly->delete();
 
             return response()->json(['message' => 'Ensamble eliminado correctamente.'], 200);
@@ -245,6 +259,11 @@ class AssemblyController extends Controller
 
             $assembly->status = 1;
             $assembly->save();
+
+            event(new AssemblyUpdated([
+                'action' => 'completed',
+                'assembly' => $assembly->fresh()->toArray(),
+            ]));
 
             return response()->json([
                 'status' => 'success',

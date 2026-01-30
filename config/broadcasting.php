@@ -36,11 +36,11 @@ return [
             'secret' => env('PUSHER_APP_SECRET'),
             'app_id' => env('PUSHER_APP_ID'),
             'options' => [
-                'cluster' => 'mt1',
+                'cluster' => env('PUSHER_APP_CLUSTER'),
                 'useTLS' => false,
-                'host' => 'ws.parprohub',
-                'port' => 80,
-                'scheme' => 'http',
+                'host' => env('PUSHER_HOST'),
+                'port' => env('PUSHER_PORT'),
+                'scheme' => env('PUSHER_SCHEME', 'http'),
             ],
             'client_options' => [
                 // Guzzle client options: https://docs.guzzlephp.org/en/stable/request-options.html

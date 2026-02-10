@@ -58,6 +58,7 @@ class AssemblyController extends Controller
                     'customer_name' => $assembly->customer ? $assembly->customer->customer_name : null,
                     'logo_url' => $assembly->customer ? asset($assembly->customer->logo_path) : null,
                     'job' => $assembly->job,
+                    'retention' => $assembly->retention,
 
                 ];
             });
@@ -150,6 +151,7 @@ class AssemblyController extends Controller
                 'assembly_customer_id' => 'required|integer',
                 'user_id' => 'required|integer',
                 'job' => 'nullable|string',
+                'retention' => 'required|integer',
             ]);
 
             $assembly = Assembly::create($validated);
@@ -196,6 +198,7 @@ class AssemblyController extends Controller
                 'assembly_customer_id' => 'required|integer',
                 'user_id' => 'required|integer',
                 'job' => 'nullable|string',
+                'retention' => 'required|integer',
             ]);
 
             $assembly->update($validated);
@@ -214,7 +217,7 @@ class AssemblyController extends Controller
             Log::error('Error al actualizar ensamble', ['id' => $id, 'error' => $e->getMessage()]);
             return response()->json([
                 'status' => 'error',
-                'message' => 'No se pudo actualizar la ensamble.',
+                'message' => 'No se pudo actualizar el ensamble.',
                 'error' => $e->getMessage(),
             ], 500);
         }

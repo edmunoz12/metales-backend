@@ -10,14 +10,13 @@ use App\Models\ReportTypes\ReportTypes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\ToolCode\ToolCode;
 
 class Tool extends Model
 {
     use HasFactory, SoftDeletes;
     protected $table = 'tools';
     protected $fillable = [
-
-        'code',
         'tool_type_id',
         'location_id',
         'supplier_id',
@@ -32,6 +31,8 @@ class Tool extends Model
         'model',
         'style',
         'report_type_id',
+        'tool_code_id',
+        'code',
     ];
 
     public const PAGINATE = 50;
@@ -68,6 +69,10 @@ class Tool extends Model
     public function reportType()
     {
         return $this->belongsTo(ReportTypes::class, 'report_type_id');
+    }
+
+    public function toolCode() {
+        return $this->belongsTo(ToolCode::class);
     }
 
 }

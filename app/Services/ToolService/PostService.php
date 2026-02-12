@@ -2,31 +2,67 @@
 
 namespace App\Services\ToolService;
 
+use App\Models\Tool\Tool;
+use App\Models\ToolCode\ToolCode;
+use Illuminate\Support\Facades\DB;
+
 class PostService
 {
-    public function create(array $data)
+    public function execute(array $data): Tool
     {
-        return Driver::create($data);
+        return DB::transaction(function () use ($data) {
+
+            /*
+            |--------------------------------------------------------------------------
+            | 1. TOMAR CODE DISPONIBLE (LOCK)
+            |--------------------------------------------------------------------------
+            */
+
+            $toolCode = ToolCode::takeAvailable();
+
+            /*
+            |--------------------------------------------------------------------------
+            | 2. CREAR TOOL
+            |--------------------------------------------------------------------------
+            */
+
+            $tool = Tool::create([
+                'tool_type_id'        => $data['tool_type_id'],
+                'location_id'         => $data['location_id'],
+                'supplier_id'         => $data['supplier_id'],
+                'lifecycle_statuses'  => $data['lifecycle_statuses'],
+                'acquired_at'         => $data['acquired_at'],
+                'description'         => $data['description'] ?? null,
+                'shape'               => $data['shape'],
+                'station_size'        => $data['station_size'],
+                'measurement'         => $data['measurement'],
+                'angle'               => $data['angle'],
+                'clarity'             => $data['clarity'],
+                'model'               => $data['model'] ?? null,
+                'style'               => $data['style'] ?? null,
+                'report_type_id'      => $data['report_type_id'],
+
+                /*
+                |--------------------------------------------------------------------------
+                | CAMPOS DEL SISTEMA (NO DEL USUARIO)
+                |--------------------------------------------------------------------------
+                */
+
+                'tool_code_id'        => $toolCode->id,
+                'code'                => $toolCode->code,
+            ]);
+
+            /*
+            |--------------------------------------------------------------------------
+            | 3. ASIGNAR CODE
+            |--------------------------------------------------------------------------
+            */
+
+            $toolCode->assignTo($tool);
+
+            return $tool;
+        });
     }
 
-    public function update(array $data, int $id)
-    {
-        // lógica para actualizar un conductor
-    }
-
-    public function delete(int $id)
-    {
-        // lógica para eliminar un conductor
-    }
-
-    public function all()
-    {
-        // lógica para obtener todos los conductores
-    }
-
-    public function find(int $id)
-    {
-        // lógica para obtener un conductor específico
-    }
 
 }

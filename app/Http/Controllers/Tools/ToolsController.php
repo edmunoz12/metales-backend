@@ -6,8 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Location\Location;
 use App\Models\Supplier\Supplier;
 use App\Models\Tool\Tool;
+use App\Models\ToolCode\ToolCode;
 use App\Models\ToolType\ToolType;
+use App\Services\ToolService\PostService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Log;
@@ -115,26 +118,29 @@ class ToolsController extends Controller
     /**
      * POST /api/tools
      */
-    public function store(Request $request)
+    /*
+    public function store(Request $request, PostService $service)
     {
-        try {
-            $validated = $request->validate([
-                'code' => 'required|string|max:3|unique:tools,code',
-                'shape' => 'required|string|max:255',
-                'station_size' => 'required|string|max:255',
-                'measurement' => 'required|string|max:255',
-                'angle' => 'required|integer',
-                'clarity' => 'required|string|max:255',
-                'tool_type_id' => 'required|integer|exists:tool_types,id',
-                'location_id' => 'required|integer|exists:locations,id',
-                'supplier_id' => 'required|integer|exists:suppliers,id',
-                'lifecycle_statuses' => 'required|integer|max:255',
-                'acquired_at' => 'required|date',
-                'description' => 'nullable|string|max:500',
-                'report_type_id' => 'sometimes|required',
-            ]);
+        $validated = $request->validate([
+            'shape' => 'required|string|max:255',
+            'station_size' => 'required|string|max:255',
+            'measurement' => 'required|string|max:255',
+            'angle' => 'required|integer',
+            'clarity' => 'required|string|max:255',
+            'tool_type_id' => 'required|integer|exists:tool_types,id',
+            'location_id' => 'required|integer|exists:locations,id',
+            'supplier_id' => 'required|integer|exists:suppliers,id',
+            'lifecycle_statuses' => 'required|integer|max:255',
+            'acquired_at' => 'required|date',
+            'description' => 'nullable|string|max:500',
 
-            $tool = Tool::create($validated);
+        ]);
+
+        $validated['report_type_id'] = 1; // corresponde a Troqueladora
+
+        try {
+
+            $tool = $service->execute($validated);
 
             return response()->json([
                 'status' => 'success',
@@ -159,6 +165,7 @@ class ToolsController extends Controller
         }
     }
 
+    */
     /**
      * PUT /api/tools/{id}
      */
@@ -174,10 +181,7 @@ class ToolsController extends Controller
             }
 
             $validated = $request->validate([
-                'code' => [
-                    'sometimes', 'required', 'string', 'max:3',
-                    Rule::unique('tools', 'code')->ignore($tool->id),
-                ],
+
                 'shape' => 'sometimes|required|string|max:255',
                 'station_size' => 'sometimes|required|string|max:255',
                 'measurement' => 'sometimes|required|string|max:255',
@@ -189,7 +193,7 @@ class ToolsController extends Controller
                 'lifecycle_statuses' => 'sometimes|required|integer|max:255',
                 'acquired_at' => 'sometimes|required|date',
                 'description' => 'nullable|string|max:500',
-                'report_type_id' => 'sometimes|required',
+
             ]);
 
             $tool->update($validated);
@@ -223,27 +227,39 @@ class ToolsController extends Controller
     public function destroy($id)
     {
         try {
-            $tool = Tool::find($id);
-            if (!$tool) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Herramienta no encontrada.'
-                ], 404);
-            }
+            DB::transaction(function () use ($id) {
 
-            $tool->delete();
+                $tool = Tool::findOrFail($id);
+
+                if ($tool->toolCode) {
+                    $tool->toolCode->release();
+                }
+
+                $tool->delete(); // una sola vez
+            });
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'Herramienta eliminada correctamente.'
             ], 200);
 
-        } catch (\Exception $e) {
-            Log::error('Error al eliminar herramienta', ['id' => $id, 'error' => $e->getMessage()]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+
             return response()->json([
                 'status' => 'error',
-                'message' => 'No se pudo eliminar la herramienta.',
-                'error' => $e->getMessage(),
+                'message' => 'Herramienta no encontrada.'
+            ], 404);
+
+        } catch (\Exception $e) {
+
+            Log::error('Error al eliminar herramienta', [
+                'id' => $id,
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No se pudo eliminar la herramienta.'
             ], 500);
         }
     }
@@ -266,6 +282,75 @@ class ToolsController extends Controller
         $count = Tool::count();
         return response()->json(['count' => $count]);
     }
+
+    public function preview()
+    {
+        $toolCode = ToolCode::where('status', ToolCode::AVAILABLE)
+            ->orderBy('id')
+            ->first();
+
+        if (!$toolCode) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No hay códigos disponibles'
+            ], 409);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'id'   => $toolCode->id,
+                'code' => $toolCode->code,
+            ]
+        ]);
+    }
+
+    public function store(Request $request, PostService $service)
+    {
+        $validated = $request->validate([
+            'shape' => 'required|string|max:255',
+            'station_size' => 'required|string|max:255',
+            'measurement' => 'required|string|max:255',
+            'angle' => 'required|integer',
+            'clarity' => 'required|string|max:255',
+            'tool_type_id' => 'required|integer|exists:tool_types,id',
+            'location_id' => 'required|integer|exists:locations,id',
+            'supplier_id' => 'required|integer|exists:suppliers,id',
+            'lifecycle_statuses' => 'required|integer|max:255',
+            'acquired_at' => 'required|date',
+            'description' => 'nullable|string|max:500',
+
+        ]);
+
+        $validated['report_type_id'] = 1; // corresponde a Troqueladora
+
+        try {
+
+            $tool = $service->execute($validated);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Herramienta creada correctamente.',
+                'data' => $tool
+            ], 201);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error de validación.',
+                'errors' => $e->errors()
+            ], 422);
+
+        } catch (\Exception $e) {
+            Log::error('Error al crear herramienta', ['error' => $e->getMessage()]);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No se pudo crear la herramienta.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
 
 }
 

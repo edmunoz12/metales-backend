@@ -27,11 +27,12 @@ class AuthController extends Controller
             }
 
             $request->session()->regenerate();
+            $user = Auth::user()->load('userType');
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'Login exitoso',
-                'user' => Auth::user(),
+                'user' => $user,
             ], 200);
 
         } catch (ValidationException $e) {
@@ -70,7 +71,9 @@ class AuthController extends Controller
      */
     public function user(Request $request)
     {
-        return response()->json(Auth::user());
+        return response()->json(
+            Auth::user()->load('userType')
+        );
     }
 
     /**

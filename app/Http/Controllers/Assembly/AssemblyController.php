@@ -34,7 +34,11 @@ class AssemblyController extends Controller
             $pageSize = $request->input('pageSize', 10);
 
             // Construimos la query base
-            $assemblies = Assembly::with('customer')
+            $assemblies = Assembly::with([
+                'customer',
+                'operator',
+                'creator'
+            ])
             ->whereNull('status')
             ->orderBy('priority_type', 'ASC');
 
@@ -55,6 +59,8 @@ class AssemblyController extends Controller
                     'assembly_date' => $assembly->assembly_date,
                     'assembly_customer_id' => $assembly->assembly_customer_id,
                     'user_id' => $assembly->user_id,
+                    'operator_name' => $assembly->operator?->name,
+                    'created_by_name' => $assembly->creator?->name,
                     'customer_name' => $assembly->customer ? $assembly->customer->customer_name : null,
                     'logo_url' => $assembly->customer ? asset($assembly->customer->logo_path) : null,
                     'job' => $assembly->job,
@@ -117,7 +123,12 @@ class AssemblyController extends Controller
     public function show($id)
     {
         try {
-            $assembly = Assembly::find($id);
+            $assembly = Assembly::with([
+                'operator',
+                'creator',
+                'customer'
+            ])->find($id);
+
             if(!$assembly){
                 return response()->json([
                     'status' => 'error',
@@ -127,7 +138,22 @@ class AssemblyController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'data' => $assembly
+                'data' => [
+                    'id' => $assembly->id,
+                    'part_number' => $assembly->part_number,
+                    'quantity' => $assembly->quantity,
+                    'priority_type' => $assembly->priority_type,
+                    'assembly_date' => $assembly->assembly_date,
+                    'created_at' => $assembly->created_at,
+                    'updated_at' => $assembly->updated_at,
+                    'status' => $assembly->status,
+                    'retention' => $assembly->retention,
+                    'job' => $assembly->job,
+
+                    'customer_name' => $assembly->customer?->customer_name,
+                    'operator_name' => $assembly->operator?->name,
+                    'created_by_name' => $assembly->creator?->name,
+                ]
             ], 200);
 
         } catch (\Exception $e) {
@@ -147,12 +173,14 @@ class AssemblyController extends Controller
                 'part_number' => 'required|string|max:20',
                 'quantity' => 'required|integer',
                 'priority_type' => 'required|integer',
-                'assembly_date' => 'required|date',
                 'assembly_customer_id' => 'required|integer',
                 'user_id' => 'required|integer',
                 'job' => 'nullable|string',
                 'retention' => 'required|integer',
             ]);
+
+            $validated['assembly_date'] = now()->toDateString();
+            $validated['created_by'] = auth()->id();
 
             $assembly = Assembly::create($validated);
             // se dispara evento que muestra los cambios en la tabla en las otras sesiones
@@ -179,7 +207,7 @@ class AssemblyController extends Controller
             Log::error('Error al crear el registro', ['error' => $e->getMessage()]);
             return response()->json([
                 'status' => 'error',
-                'message' => 'No se generar el registro.',
+                'message' => 'Error, no se logro crear el registro.',
                 'error' => $e->getMessage(),
             ], 500);
         }
@@ -194,7 +222,6 @@ class AssemblyController extends Controller
                 'part_number' => 'required|string|max:255',
                 'quantity' => 'required|integer',
                 'priority_type' => 'required|integer',
-                'assembly_date' => 'nullable|date',
                 'assembly_customer_id' => 'required|integer',
                 'user_id' => 'required|integer',
                 'job' => 'nullable|string',
@@ -286,6 +313,32 @@ class AssemblyController extends Controller
             ], 500);
         }
     }
+
+    public function deleteAllItems()
+    {
+        try {
+
+            $deleted = Assembly::whereNull('status')
+                ->delete();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => "Registros eliminados: $deleted"
+            ], 200);
+
+        } catch (\Exception $e) {
+            Log::error('Error al eliminar todos los ensambles', [
+                'error' => $e->getMessage()
+            ]);
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No se pudieron eliminar los registros.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
 
 
 }

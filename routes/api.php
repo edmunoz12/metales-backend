@@ -67,6 +67,8 @@ Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
         Route::get('/reports', [AssemblyController::class, 'reports']); // REPORTS
         Route::get('/customers', [AssemblyController::class, 'customers']);
         Route::get('/operators', [AssemblyController::class, 'operators']);
+        Route::get('/{id}', [AssemblyController::class, 'show']);
+        Route::delete('/assemblies/delete-all-items', [AssemblyController::class, 'deleteAllItems']);
 
         Route::get('/', [AssemblyController::class, 'index']); // PRODUCCIÓN
         Route::get('/{id}', [AssemblyController::class, 'show']);

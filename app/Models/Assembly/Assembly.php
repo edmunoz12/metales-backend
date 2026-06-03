@@ -3,6 +3,7 @@
 namespace App\Models\Assembly;
 
 use App\Models\AssemblyCustomer\AssemblyCustomer;
+use App\Models\User\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -19,6 +20,7 @@ class Assembly extends Model
       'assembly_date',
       'assembly_customer_id',
       'user_id',
+      'created_by',
       'job',
       'status',
       'retention'
@@ -32,6 +34,17 @@ class Assembly extends Model
     public function customer()
     {
         return $this->belongsTo(AssemblyCustomer::class, 'assembly_customer_id');
+    }
+
+
+    public function operator()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 
 }

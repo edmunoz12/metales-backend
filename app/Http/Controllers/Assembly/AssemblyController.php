@@ -180,8 +180,12 @@ class AssemblyController extends Controller
             ]);
 
             $validated['assembly_date'] = now()->toDateString();
+            Log::info('Usuario autenticado', [
+                'user' => auth()->user(),
+                'id' => auth()->id()
+            ]);
             $validated['created_by'] = auth()->id();
-
+            //dd(auth()->id());
             $assembly = Assembly::create($validated);
             // se dispara evento que muestra los cambios en la tabla en las otras sesiones
             //  IMPORTANTE: evitar enviar datos acoplados al response

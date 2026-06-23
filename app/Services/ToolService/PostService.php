@@ -38,7 +38,7 @@ class PostService
                 'measurement'         => $data['measurement'],
                 'angle'               => $data['angle'],
                 'clarity'             => $data['clarity'],
-                'model'               => $data['model'] ?? null,
+                //'model'               => $data['model'] ?? null,
                 'style'               => $data['style'] ?? null,
                 'report_type_id'      => $data['report_type_id'],
 

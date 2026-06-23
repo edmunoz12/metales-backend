@@ -54,7 +54,6 @@ class InsertionController extends Controller
                 'suppliers.name as supplier_name',
                 'tools.acquired_at',
                 'tools.description',
-                'tools.model',
                 'tools.style',
                 'tools.report_type_id',
                 'report_types.name as report_type_name',
@@ -76,7 +75,6 @@ class InsertionController extends Controller
                             ->orWhere('station_size', 'like', "%$search%")
                             ->orWhere('measurement', 'like', "%$search%")
                             ->orWhere('supplier_name', 'like', "%$search%")
-                            ->orWhere('model', 'like', "%$search%")
                             ->orWhere('style', 'like', "%$search%")
                             ->orWhere('report_type_id', 'like', "%$search%");
                     });
@@ -145,7 +143,6 @@ class InsertionController extends Controller
                 'tool_type_id' => 'required|integer|exists:tool_types,id',
                 'measurement' => 'required|string|max:255',
                 'supplier_id' => 'required|integer|exists:suppliers,id',
-                'model' =>'nullable|string|max:250',
                 'style' => 'nullable|string|max:250',
                 'report_type_id' => 'sometimes|required',
                 'acquired_at' => 'required|date',
@@ -201,7 +198,6 @@ class InsertionController extends Controller
                 'tool_type_id' => 'sometimes|required|integer|exists:tool_types,id',
                 'measurement' => 'sometimes|required|string|max:255',
                 'supplier_id' => 'sometimes|required|integer|exists:suppliers,id',
-                'model' =>'nullable|string|max:250',
                 'style' => 'nullable|string|max:250',
                 'report_type_id' => 'sometimes|required',
                 'acquired_at' => 'sometimes|required|date',
